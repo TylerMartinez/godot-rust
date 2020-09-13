@@ -13,7 +13,6 @@
 //! must be taken to ensure that the version of the generator matches the one specified in
 //! the `Cargo.toml` of the `gdnative` crate exactly, even for updates that are considered
 //! non-breaking in the `gdnative` crate.
-
 use proc_macro2::TokenStream;
 
 use quote::{format_ident, quote};
@@ -24,8 +23,10 @@ pub mod dependency;
 mod documentation;
 mod methods;
 mod special_methods;
+mod class_docs;
 
 pub use crate::api::*;
+pub use crate::class_docs::*;
 use crate::classes::*;
 pub use crate::dependency::*;
 use crate::documentation::*;
@@ -42,7 +43,7 @@ pub struct BindingResult {
     pub icalls: TokenStream,
 }
 
-pub fn generate_bindings(api: &Api) -> BindingResult {
+pub fn generate_bindings(api: &Api,docs:&impl ClassDocs) -> BindingResult {
     let mut icalls = HashMap::new();
 
     let class_bindings = api
@@ -51,7 +52,7 @@ pub fn generate_bindings(api: &Api) -> BindingResult {
         .map(|class| {
             (
                 class.name.clone(),
-                generate_class_bindings(&api, class, &mut icalls),
+                generate_class_bindings(&api, class, &mut icalls, docs),
             )
         })
         .collect();
@@ -79,6 +80,7 @@ fn generate_class_bindings(
     api: &Api,
     class: &GodotClass,
     icalls: &mut HashMap<String, MethodSig>,
+    docs: &impl ClassDocs,
 ) -> TokenStream {
     // types and methods
     let types_and_methods = {
@@ -94,7 +96,7 @@ fn generate_class_bindings(
             Default::default()
         };
 
-        let class_impl = generate_class_impl(class, icalls);
+        let class_impl = generate_class_impl(class, icalls, docs);
 
         quote! {
             #documentation
