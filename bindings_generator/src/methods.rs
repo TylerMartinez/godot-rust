@@ -1,5 +1,5 @@
 use crate::api::*;
-use crate::class_docs::ClassDocs;
+use crate::class_docs::GodotXMLDocs;
 use crate::rust_safe_name;
 
 use proc_macro2::TokenStream;
@@ -263,7 +263,7 @@ const UNSAFE_OBJECT_METHODS: &[(&str, &str)] = &[
 pub(crate) fn generate_methods(
     class: &GodotClass,
     icalls: &mut HashMap<String, MethodSig>,
-    docs: &impl ClassDocs,
+    docs: Option<&GodotXMLDocs>,
 ) -> TokenStream {
     // Brings values of some types to a type with less information.
     fn arg_erase(ty: &Ty, name: &proc_macro2::Ident) -> TokenStream {
@@ -364,7 +364,7 @@ pub(crate) fn generate_methods(
         };
 
         let doc_comment = docs
-            .get_class_method_desc(class.name.as_str(), method_name)
+            .and_then(|docs| docs.get_class_method_desc(class.name.as_str(), method_name))
             .unwrap_or("");
 
         let recover = ret_recover(&ret_type, icall_ty);

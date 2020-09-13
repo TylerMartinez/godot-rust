@@ -1,5 +1,5 @@
 use crate::api::*;
-use crate::class_docs::ClassDocs;
+use crate::class_docs::GodotXMLDocs;
 use crate::methods;
 use crate::special_methods;
 
@@ -24,7 +24,7 @@ pub(crate) fn generate_class_struct(class: &GodotClass) -> TokenStream {
 pub(crate) fn generate_class_impl(
     class: &GodotClass,
     icalls: &mut HashMap<String, methods::MethodSig>,
-    docs: &impl ClassDocs,
+    docs: Option<&GodotXMLDocs>,
 ) -> TokenStream {
     let class_singleton = if class.singleton {
         special_methods::generate_singleton_getter(class)

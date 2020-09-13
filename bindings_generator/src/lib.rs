@@ -18,12 +18,12 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 pub mod api;
+mod class_docs;
 mod classes;
 pub mod dependency;
 mod documentation;
 mod methods;
 mod special_methods;
-mod class_docs;
 
 pub use crate::api::*;
 pub use crate::class_docs::*;
@@ -43,7 +43,7 @@ pub struct BindingResult {
     pub icalls: TokenStream,
 }
 
-pub fn generate_bindings(api: &Api,docs:&impl ClassDocs) -> BindingResult {
+pub fn generate_bindings(api: &Api, docs: Option<&GodotXMLDocs>) -> BindingResult {
     let mut icalls = HashMap::new();
 
     let class_bindings = api
@@ -80,7 +80,7 @@ fn generate_class_bindings(
     api: &Api,
     class: &GodotClass,
     icalls: &mut HashMap<String, MethodSig>,
-    docs: &impl ClassDocs,
+    docs: Option<&GodotXMLDocs>,
 ) -> TokenStream {
     // types and methods
     let types_and_methods = {

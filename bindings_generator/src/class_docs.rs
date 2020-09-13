@@ -2,10 +2,6 @@ use std::{collections::HashMap, fs};
 
 use roxmltree::Node;
 
-pub trait ClassDocs {
-    fn get_class_method_desc(&self, class: &str, method: &str) -> Option<&str>;
-}
-
 #[derive(Debug)]
 pub struct GodotXMLDocs {
     class_fn_desc: HashMap<(String, String), String>,
@@ -31,6 +27,11 @@ impl GodotXMLDocs {
         }
 
         docs
+    }
+
+    pub fn get_class_method_desc(&self, class: &str, method: &str) -> Option<&str> {
+        let key = (class.to_string(), method.to_string());
+        self.class_fn_desc.get(&key).map(|s| s.as_str())
     }
 
     fn parse_file(&mut self, file_content: &str) {
@@ -98,12 +99,5 @@ impl GodotXMLDocs {
         dbg!(class, method, desc);
         self.class_fn_desc
             .insert((class.into(), method.into()), desc.trim().into());
-    }
-}
-
-impl ClassDocs for GodotXMLDocs {
-    fn get_class_method_desc(&self, class: &str, method: &str) -> Option<&str> {
-        let key = (class.to_string(), method.to_string());
-        self.class_fn_desc.get(&key).map(|s| s.as_str())
     }
 }

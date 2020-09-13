@@ -16,7 +16,7 @@ fn main() {
 
     let api = Api::new(&api_data);
     let docs = GodotXMLDocs::new("xmls");
-    let binding_res = generate_bindings(&api, &docs);
+    let binding_res = generate_bindings(&api, Some(&docs));
 
     {
         let mut output = BufWriter::new(File::create(&generated_rs).unwrap());
